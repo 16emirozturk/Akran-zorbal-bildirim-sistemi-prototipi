@@ -17,50 +17,30 @@ st.write("Akran zorbalığı şüphesini bildirmek ve destek istemek için güve
 # Bu uyarı, uygulamanın gerçek bir acil yardım hattı olmadığını belirtir.
 st.info("Bu bir öğrenci projesi prototipidir. Gerçek bildirimler şu anda rehberlik servisine gönderilmez.")
 
-# Bu fonksiyon, metni basit kelime analizine uygun hale getirir.
-def metni_duzenle(metin):
-    # Türkçe büyük ve küçük harf farklılıklarını azaltmak için küçük harfe çevirir.
-    metin = metin.lower()
 
-    # Türkçedeki noktalı ve noktasız i harflerini ortak biçime yaklaştırır.
-    metin = metin.replace("İ", "i").replace("ı", "i")
+# Türkçe şüpheli ifade tespit fonksiyonunu ayrı dosyadan alır.
+from hakaret_tespiti import supheli_ifadeleri_bul
 
-    # Aksanlı Unicode karakterlerini standart biçime dönüştürür.
-    metin = unicodedata.normalize("NFKC", metin)
 
-    # Düzenlenmiş metni fonksiyonu çağıran yere geri verir.
-    return metin
-
-# Şüpheli olabilecek ifadeler için örnek bir kelime listesi oluşturur.
-# Bu liste bilimsel olarak doğrulanmış bir zorbalık sözlüğü değildir.
-riskli_ifadeler = [
-    "seni tehdit", "seni döverim", "sana zarar",
-    "senden nefret", "seninle dalga", "seni dışla",
-    "aptal", "salak", "hakaret", "tehdit",
-    "şantaj", "zorbalık", "alay et", "dışlıyor"
-]
-
-# Metni inceleyen basit analiz fonksiyonunu tanımlar.
 def metni_analiz_et(metin):
-    # Analiz öncesinde metni standart hale getirir.
-    duzenlenmis = metni_duzenle(metin)
+    # Ayrı dosyadaki analiz fonksiyonunu kullanır.
+    bulunanlar = supheli_ifadeleri_bul(metin)
 
-    # Metinde bulunan listedeki ifadeleri bir listeye toplar.
-    bulunanlar = [
-        ifade for ifade in riskli_ifadeler
-        if metni_duzenle(ifade) in duzenlenmis
-    ]
-
-    # Eşleşme varsa inceleme önerir; yoksa yine de insan değerlendirmesine açık bırakır.
     if bulunanlar:
         sonuc = "İnceleme öneriliyor"
-        aciklama = "Bazı ifadeler ek değerlendirme gerektirebilir."
+        aciklama = (
+            "Bazı ifadeler ek değerlendirme gerektirebilir. "
+            "Bu sonuç tek başına zorbalık kanıtı değildir."
+        )
     else:
         sonuc = "Belirgin eşleşme bulunmadı"
-        aciklama = "Bu sonuç zorbalık olmadığı anlamına gelmez."
+        aciklama = (
+            "Bu sonuç zorbalık olmadığı anlamına gelmez. "
+            "İnsan değerlendirmesi yine de gerekebilir."
+        )
 
-    # Sonucu, bulunan ifadeleri ve açıklamayı geri döndürür.
     return sonuc, bulunanlar, aciklama
+
 
 # Bildirimleri geçici olarak bellekte tutacak listeyi ilk kullanımda oluşturur.
 if "bildirimler" not in st.session_state:
