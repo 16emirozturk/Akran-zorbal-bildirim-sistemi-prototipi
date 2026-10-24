@@ -421,15 +421,19 @@ st.sidebar.markdown("# 🛡️ Güvenli Okul")
 st.sidebar.caption("Akran zorbalığı bildirim ve inceleme demosu")
 st.sidebar.divider()
 
+
 sayfa = st.sidebar.radio(
     "MENÜ",
     [
         "Genel bakış",
         "Yeni bildirim",
         "Yönetici girişi",
+        "Bildirim inceleme",
         "Güvenli kullanım",
-    ],
+    ]
 )
+
+
 
 st.sidebar.divider()
 st.sidebar.info(
