@@ -564,3 +564,61 @@ st.caption(
     "Güvenli Okul · Aşama 2 demo sürümü · "
     "Gerçek okul sistemi değildir."
 )
+
+import hmac
+import streamlit as st
+
+# Demo yöneticisi bilgileri Streamlit Secrets'tan alınır.
+yonetici = st.secrets.get("admin", {})
+dogru_kullanici = str(yonetici.get("username", ""))
+dogru_parola = str(yonetici.get("password", ""))
+
+if "yonetici_giris" not in st.session_state:
+    st.session_state.yonetici_giris = False
+
+if not st.session_state.yonetici_giris:
+    st.set_page_config(
+        page_title="Güvenli Okul | Yönetici",
+        page_icon="🛡️",
+        layout="centered",
+    )
+
+    st.title("🛡️ Güvenli Okul")
+    st.subheader("Yönetici girişi")
+    st.caption("Bildirim inceleme paneline erişmek için giriş yapın.")
+
+    if not dogru_kullanici or not dogru_parola:
+        st.warning(
+            "Yönetici bilgileri henüz yapılandırılmamış. "
+            "Streamlit Secrets ayarlarını kontrol edin."
+        )
+        st.stop()
+
+    with st.form("yonetici_giris_formu"):
+        kullanici = st.text_input("Kullanıcı adı")
+        parola = st.text_input("Parola", type="password")
+        giris_yap = st.form_submit_button(
+            "Giriş yap",
+            use_container_width=True,
+        )
+
+    if giris_yap:
+        kullanici_dogru = hmac.compare_digest(
+            kullanici, dogru_kullanici
+        )
+        parola_dogru = hmac.compare_digest(
+            parola, dogru_parola
+        )
+
+        if kullanici_dogru and parola_dogru:
+            st.session_state.yonetici_giris = True
+            st.rerun()
+        else:
+            st.error("Giriş bilgileri hatalı.")
+
+    st.stop()
+
+# Bu noktadan sonra mevcut yönetici paneli kodu çalışır.
+if st.sidebar.button("Güvenli çıkış yap"):
+    st.session_state.yonetici_giris = False
+    st.rerun()
